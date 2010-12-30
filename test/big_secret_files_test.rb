@@ -7,9 +7,11 @@ require 'big_secret_files'
 #
 
 class String
-  # dumb pluralize implementation for testing
+  # dumb string extension for testing
   # real lib uses active_support from rails
-  def pluralize; self + 's'; end
+  def underscore
+    self.gsub(/([A-Z])/, '_\1').sub(/^_/, '').downcase
+  end
 end
 
 class MyModel
@@ -42,7 +44,7 @@ class BigSecretFilesTest < Test::Unit::TestCase
   def setup
     @my_model = MyModel.new
     rails_root = File.expand_path(MyModel::RAILS_ROOT)
-    @expected_dir = File.join(rails_root, 'data', 'test', 'documents', '1')
+    @expected_dir = File.join(rails_root, 'data', 'test', 'my_model', '1', 'document')
     FileUtils.stubs(:mkdir_p)
     FileUtils.stubs(:mv)
   end

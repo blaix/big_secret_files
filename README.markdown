@@ -4,9 +4,13 @@ A Rails 2-style plugin for uploading files to the filesystem as simply as
 possible.
 
 Uploaded files are kept on the filesystem, not read into memory when uploaded
-(you can read them later if you want), and they aren't stored in a
-web-accessible directory. Because of this, large files are handled with ease,
-and the code is super simple. Original file names are preserved.
+(you can read them later if you want) using `FileUtils.mv` from the uploaded
+file temp path to a permanent path scoped by the rails env, model name,
+attribute name, and record id (original filenames are preserved). Because of
+this, large files are handled with ease, and the code is super simple.
+
+Files are considered "secret" beacuse they aren't stored in a web-accessible
+directory by default, but you can change that (see below).
 
 This was originally written for a legacy project. I have paid zero attention
 to making sure it is compatible with Rails 3, but it might be.
@@ -61,14 +65,25 @@ And in your controller you can handle the uploads with normal assignment:
 have an `id`). This won't affect your `update` action, but if you want to
 upload files on `create`, you'll need to jump through the appropriate hoops.
 
-The files will be uploaded to a directory scoped to the rails env and record id. For example:
+The default filesystem paths for the uploaded files will look like this:
 
-    [rails_root]/data/[rails_env]/codes/[record_id]/[original filename] and
-    [rails_root]/data/[rails_env]/checksums/[record_id]/[original filename]
+    [rails_root]/data/[rails_env]/microprocessors/[id]/code/[original filename] and
+    [rails_root]/data/[rails_env]/microprocessors/[id]/checksum/[original filename]
 
-You can do what you want with this. Be sure to make sure the data dir is
-shared between releases if you use something like capistrano. The plugin won't
-do that for you.
+Make sure the `data` dir is shared between releases if you use something like
+capistrano. The plugin won't do that for you.
+
+To change where files are saved, add a `[name]_dir` method to your model. For
+example:
+
+    Microprocessor < ActiveRecord::Base
+      extend BigSecretFiles::Attachable
+      has_big_secret :code
+      
+      def code_dir
+        File.expand_path(File.join(RAILS_ROOT, code, id.to_s)
+      end
+    end
 
 To interact with uploaded files in your app code, the plugin adds the
 some handy methods to your model:
