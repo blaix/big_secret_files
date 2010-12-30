@@ -39,7 +39,7 @@ migration that looks like this:
 Using the above example, your model should look like this:
 
     require 'big_secret_files'
-    
+
     class Microprocessor < ActiveRecord::Base
       extend BigSecretFiles::Attachable # Yep, no monkey-patching here
       
@@ -47,10 +47,20 @@ Using the above example, your model should look like this:
       has_big_secret :checksum
     end
 
-In your view:
+In your view, just use normal file upload fields:
 
-    TODO: view example
+    Code file: <%= file_field(:microprocessor, :code) %><br>
+    Checksum file: <%= file_field(:microprocessor, :checksum) %>
     
-In your controller:
+And in your controller you can handle the uploads with normal assignment:
 
-    TODO: controller example
+    @microprocessor.code = params[:microprocessor][:code]
+    @microprocessor.checksum = params[:microprocessor][:checksum]
+
+**NOTE:** The record you're adding files to must already exist (i.e. it must
+have an `id`). This won't affect your `update` action, but if you want to
+upload files on `create`, you'll need to jump through the appropriate hoops.
+
+## TODO:
+
+* Handle uploads to new records.
