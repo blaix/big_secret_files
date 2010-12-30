@@ -34,7 +34,7 @@ migration that looks like this:
       remove_column :microprocessors, :checksum_filename
     end
 
-## Usage
+## Usage:
 
 Using the above example, your model should look like this:
 
@@ -60,6 +60,34 @@ And in your controller you can handle the uploads with normal assignment:
 **NOTE:** The record you're adding files to must already exist (i.e. it must
 have an `id`). This won't affect your `update` action, but if you want to
 upload files on `create`, you'll need to jump through the appropriate hoops.
+
+The files will be uploaded to a directory scoped to the rails env and record id. For example:
+
+    [rails_root]/data/[rails_env]/codes/[record_id]/[original filename] and
+    [rails_root]/data/[rails_env]/checksums/[record_id]/[original filename]
+
+You can do what you want with this. Be sure to make sure the data dir is
+shared between releases if you use something like capistrano. The plugin won't
+do that for you.
+
+To interact with uploaded files in your app code, the plugin adds the
+some handy methods to your model:
+
+     # To get the base directory where the files are saved:
+     microprocessor.code_dir
+     microprocessor.checksum_dir.
+
+     # To get the full filesystem path to the files:
+     microprocessor.code_path
+     microprocessor.checksum_path
+
+     # To check if a file exists:
+     microprocessor.has_code?
+     microprocessor.has_checksum?
+
+     # To get the contents of the files:
+     microprocessor.code
+     microprocessor.checksum
 
 ## TODO:
 
